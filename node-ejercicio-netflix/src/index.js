@@ -56,6 +56,8 @@ server.listen(serverPort, () => {
 
 server.get('/movies', async (req, res) => {
     console.log('Pidiendo a la base de datos información de los empleados.');
+    //const queryGenre =req.query.genre;
+    //console.log(queryGenre);
     let sql = 'SELECT * FROM movies';
   
     const connection = await getConnection();
