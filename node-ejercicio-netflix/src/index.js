@@ -55,12 +55,24 @@ server.listen(serverPort, () => {
 
 
 server.get('/movies', async (req, res) => {
+
+  const connection = await getConnection();
     console.log('Pidiendo a la base de datos información de los empleados.');
-    //const queryGenre =req.query.genre;
-    //console.log(queryGenre);
-    let sql = 'SELECT * FROM movies';
+    console.log(req.query);
+
+    const queryGenre = req.query.genre;
+    // console.log(queryGenre);
   
-    const connection = await getConnection();
+    let results;
+    if (queryGenre === '') {
+      const sql = 'SELECT * FROM movie';
+      results = await connection.query(sql, [queryGenre]);
+      data = results;
+    } else {
+      const sql = 'SELECT * FROM movie WHERE genre = ?;';
+      results = await connection.query(sql, [queryGenre]);
+      data = results;
+    }
     const [results, fields] = await connection.query(sql);
     res.json({success:true, movies:results});
     connection.end();
