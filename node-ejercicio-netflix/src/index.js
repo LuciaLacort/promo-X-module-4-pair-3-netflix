@@ -1,12 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const mysql = require('mysql2/promise');
+
 
 // create and config server
 const server = express();
 server.use(cors());
 server.use(express.json());
-
-const mysql = require('mysql2/promise');
+server.set('view engine', 'ejs');
 
 async function getConnection() {
   const connection = await mysql.createConnection({
@@ -16,11 +17,9 @@ async function getConnection() {
     password: 'x@QjX4Pkc&FY$sh',
   });
   await connection.connect();
-
   console.log(
     `Conexión establecida con la base de datos (identificador=${connection.threadId})`
   );
-
   return connection;
 }
 
@@ -55,28 +54,35 @@ server.listen(serverPort, () => {
 
 
 server.get('/movies', async (req, res) => {
-
   const connection = await getConnection();
     console.log('Pidiendo a la base de datos información de los empleados.');
     console.log(req.query);
-
     const queryGenre = req.query.genre;
     // console.log(queryGenre);
-  
-    let results;
+    let data;
     if (queryGenre === '') {
-      const sql = 'SELECT * FROM movie';
-      results = await connection.query(sql, [queryGenre]);
+      const sql = 'SELECT * FROM movies';
+      const [results] = await connection.query(sql);
       data = results;
     } else {
-      const sql = 'SELECT * FROM movie WHERE genre = ?;';
-      results = await connection.query(sql, [queryGenre]);
+      const sql = 'SELECT * FROM movies WHERE genre = ?;';
+      const [results] = await connection.query(sql, [queryGenre]);
       data = results;
     }
-    const [results, fields] = await connection.query(sql);
-    res.json({success:true, movies:results});
+    res.json({success:true, movies:data});
     connection.end();
   });
+
+  server.get('/movie/:movieId', async (req, res) => {
+    const {idMovie} = req.params; 
+    const conn = await  getConnection();
+    const foundMovie = 'SELECT * FROM movies WHERE idMovies = ?';
+    const [results] = await conn.query(foundMovie, [idMovie]);
+    console.log(results);
+    res.render('movie', {foundMovie});
+   });
+
+
   
   // if(fakeMovies.length === 0){
   //   res.status(500).json({result:"no hay peliculas", success:false});
