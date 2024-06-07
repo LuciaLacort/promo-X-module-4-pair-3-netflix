@@ -73,13 +73,13 @@ server.get('/movies', async (req, res) => {
     connection.end();
   });
 
-  server.get('/movie/:movieId', async (req, res) => {
+  server.get('/movie/:idMovies', async (req, res) => {
     const {idMovie} = req.params; 
     const conn = await  getConnection();
     const foundMovie = 'SELECT * FROM movies WHERE idMovies = ?';
     const [results] = await conn.query(foundMovie, [idMovie]);
     console.log(results);
-    res.render('movie', {foundMovie});
+    res.render('movie', foundMovie);
    });
 
 
