@@ -80,7 +80,7 @@ server.get('/movies', async (req, res) => {
     const [results] = await conn.query(select, [idMovies]);
     const foundMovie = results[0];
     console.log(results);
-    res.render('movie', {foundMovie});
+    res.render('movie', foundMovie);
    });
 
 
