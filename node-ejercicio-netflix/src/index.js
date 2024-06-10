@@ -60,7 +60,7 @@ server.get('/movies', async (req, res) => {
     const queryGenre = req.query.genre;
     // console.log(queryGenre);
     let data;
-    if (queryGenre === '') {
+    if (!queryGenre) {
       const sql = 'SELECT * FROM movies';
       const [results] = await connection.query(sql);
       data = results;
@@ -83,13 +83,24 @@ server.get('/movies', async (req, res) => {
     res.render('movie', foundMovie);
    });
 
+   server.post('/sign-up', async (req,res) => {
+    const conn = await  getConnection()
+    const {email, password} = req.body;
+    const selectUser = 'SELECT * FROM Users WHERE email = ?';
+    const [resultUser] = await conn.query(selectUser, [email]); 
+    if(resultUser.length !== 0 ){
+      const isSamePassword = await bcrypt.compare(password, resultUser[0].hashedPassword);
+      if(isSamePassword){
+        const infoToken = {email: resultUser[0].email, id: resultUser[0].idUser}
+        const token = jwt.sign(infoToken, "secret_key", {expiresIn: "1h"});
+        res.status(201).json({succes:true, token: token})
+      } else {
+        res.status(400).json({succes:false, message: "contraseña incorrecta"})
+      }
+    }
 
-  
-  // if(fakeMovies.length === 0){
-  //   res.status(500).json({result:"no hay peliculas", success:false});
-  // } else {
-  //   res.status(200).json({result: fakeMovies, success:true});
-  // }
+   });
+
 
 console.log('Server running');
 
